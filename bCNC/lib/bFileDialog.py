@@ -36,6 +36,7 @@
 import fnmatch
 import os
 import time
+from bCNC.Helpers import N_ as _
 from stat import (
     ST_MODE,
     ST_SIZE,
@@ -263,7 +264,6 @@ class FileDialog(Toplevel):
         self.transient(master)
         self.title(title)
         self.protocol("WM_DELETE_WINDOW", self.close)
-
         FileDialog._active = True
 
         if title is None:
