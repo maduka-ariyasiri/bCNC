@@ -509,15 +509,14 @@ class Sender:
     # ----------------------------------------------------------------------
     def open(self, device, baudrate):
         # self.serial = serial.Serial(
-        self.serial = serial.serial_for_url(
-            device.replace('\\', '\\\\'),  # Escape for windows
-            baudrate,
-            bytesize=serial.EIGHTBITS,
-            parity=serial.PARITY_NONE,
-            stopbits=serial.STOPBITS_ONE,
-            timeout=SERIAL_TIMEOUT,
-            xonxoff=False,
-            rtscts=False)
+        self.serial = serial.serial_for_url(device.replace('\\', '\\\\'),  # Escape for windows
+                                            baudrate,
+                                            bytesize=serial.EIGHTBITS,
+                                            parity=serial.PARITY_NONE,
+                                            stopbits=serial.STOPBITS_ONE,
+                                            timeout=SERIAL_TIMEOUT,
+                                            xonxoff=False,
+                                            rtscts=False)
         # Toggle DTR to reset Arduino
         try:
             self.serial.setDTR(0)
