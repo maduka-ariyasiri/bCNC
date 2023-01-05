@@ -9,6 +9,8 @@ from __future__ import print_function
 __author__ = "Vasilis Vlachoudis"
 __email__  = "vvlachoudis@gmail.com"
 
+from bCNC.controllers._GenericGRBL import ERROR_CODES
+
 try:
 	from Tkinter import *
 	import tkMessageBox
@@ -26,7 +28,6 @@ import Sender
 import tkExtra
 import Unicode
 import CNCRibbon
-from Sender import ERROR_CODES
 from CNC import WCS, DISTANCE_MODE, FEED_MODE, UNITS, PLANE
 
 _LOWSTEP   = 0.0001
