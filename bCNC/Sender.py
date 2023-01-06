@@ -39,7 +39,6 @@ except ImportError:
 from CNC import WAIT, MSG, UPDATE, WCS, CNC, GCode
 import Utils
 import Pendant
-from _GenericGRBL import ERROR_CODES
 
 WIKI = "https://github.com/vlachoudis/bCNC/wiki"
 
@@ -130,6 +129,8 @@ class Sender:
 
 		self._onStart    = ""
 		self._onStop     = ""
+		self.cline = []  # length of pipeline commands
+		self.sline = []  # pipeline commands
 
 
 	#----------------------------------------------------------------------
@@ -671,8 +672,6 @@ class Sender:
 	def serialIO(self):
 		self.sio_wait   = False		# wait for commands to complete (status change to Idle)
 		self.sio_status = False		# waiting for status <...> report
-		cline  = []		# length of pipeline commands
-		sline  = []			# pipeline commands
 		tosend = None			# next string to send
 		tr = tg = time.time()		# last time a ? or $G was send to grbl
 
@@ -767,8 +766,8 @@ class Sender:
 									pass
 
 					# Bookkeeping of the buffers
-					sline.append(tosend)
-					cline.append(len(tosend))
+					self.sline.append(tosend)
+					self.cline.append(len(tosend))
 
 			# Anything to receive?
 			if self.serial.inWaiting() or tosend is None:
@@ -782,7 +781,7 @@ class Sender:
 
 				if not line:
 					pass
-				elif self.mcontrol.parseLine(line, cline, sline):
+				elif self.mcontrol.parseLine(line, self.cline, self.sline):
 					pass
 				else:
 					self.log.put((Sender.MSG_RECEIVE, line))
@@ -800,8 +799,8 @@ class Sender:
 
 			#print "tosend='%s'"%(repr(tosend)),"stack=",sline,
 			#	"sum=",sum(cline),"wait=",wait,"pause=",self._pause
-			if tosend is not None and sum(cline) < RX_BUFFER_SIZE:
-				self._sumcline = sum(cline)
+			if tosend is not None and sum(self.cline) < RX_BUFFER_SIZE:
+				self._sumcline = sum(self.cline)
 
 				#print ">S>",repr(tosend),"stack=",sline,"sum=",sum(cline)
 				if self.mcontrol.gcode_case > 0: tosend = tosend.upper()
@@ -816,6 +815,6 @@ class Sender:
 				tosend = None
 				if not self.running and t-tg > G_POLL:
 					tosend = b"$G\n" #FIXME: move to controller specific class
-					sline.append(tosend)
-					cline.append(len(tosend))
+					self.sline.append(tosend)
+					self.cline.append(len(tosend))
 					tg = t
