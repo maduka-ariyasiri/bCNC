@@ -106,6 +106,8 @@ class Sender:
 		self.log	 = Queue()	# Log queue returned from GRBL
 		self.queue	 = Queue()	# Command queue to be send to GRBL
 		self.pendant	 = Queue()	# Command queue to be executed from Pendant
+		self.cline = []  # length of pipeline commands
+		self.sline = []  # pipeline commands
 		self.serial	 = None
 		self.thread	 = None
 
@@ -670,8 +672,6 @@ class Sender:
 	def serialIO(self):
 		self.sio_wait   = False		# wait for commands to complete (status change to Idle)
 		self.sio_status = False		# waiting for status <...> report
-		cline  = []		# length of pipeline commands
-		sline  = []			# pipeline commands
 		tosend = None			# next string to send
 		tr = tg = time.time()		# last time a ? or $G was send to grbl
 
@@ -766,8 +766,8 @@ class Sender:
 									pass
 
 					# Bookkeeping of the buffers
-					sline.append(tosend)
-					cline.append(len(tosend))
+					self.sline.append(tosend)
+					self.cline.append(len(tosend))
 
 			# Anything to receive?
 			if self.serial.inWaiting() or tosend is None:
@@ -783,7 +783,7 @@ class Sender:
 				#print "*-* stack=",sline,"sum=",sum(cline),"wait=",wait,"pause=",self._pause
 				if not line:
 					pass
-				elif self.mcontrol.parseLine(line, cline, sline):
+				elif self.mcontrol.parseLine(line, self.cline, self.sline):
 					pass
 				else:
 					self.log.put((Sender.MSG_RECEIVE, line))
@@ -801,8 +801,8 @@ class Sender:
 
 			#print "tosend='%s'"%(repr(tosend)),"stack=",sline,
 			#	"sum=",sum(cline),"wait=",wait,"pause=",self._pause
-			if tosend is not None and sum(cline) < RX_BUFFER_SIZE:
-				self._sumcline = sum(cline)
+			if tosend is not None and sum(self.cline) < RX_BUFFER_SIZE:
+				self._sumcline = sum(self.cline)
 #				if isinstance(tosend, list):
 #					self.serial_write(str(tosend.pop(0)))
 #					if not tosend: tosend = None
@@ -820,6 +820,6 @@ class Sender:
 				tosend = None
 				if not self.running and t-tg > G_POLL:
 					tosend = b"$G\n" #FIXME: move to controller specific class
-					sline.append(tosend)
-					cline.append(len(tosend))
+					self.sline.append(tosend)
+					self.cline.append(len(tosend))
 					tg = t
