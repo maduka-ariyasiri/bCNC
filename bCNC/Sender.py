@@ -517,7 +517,7 @@ class Sender:
 		self.serial_write("\n\n")
 		self._gcount = 0
 		self._alarm  = True
-		self.thread  = threading.Thread(target=self.serialIO)
+		self.thread  = threading.Thread(target=self.serialIO, name="bCNC_SerialIO")
 		self.thread.start()
 		return True
 
