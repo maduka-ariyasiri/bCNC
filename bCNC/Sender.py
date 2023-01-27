@@ -518,6 +518,7 @@ class Sender:
 		self._gcount = 0
 		self._alarm  = True
 		self.thread  = threading.Thread(target=self.serialIO, name="bCNC_SerialIO")
+		self.thread.setDaemon(True)
 		self.thread.start()
 		return True
 
