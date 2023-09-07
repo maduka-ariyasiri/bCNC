@@ -11,8 +11,8 @@ else: #python version lower then 3 compatability
 	opencv_version ='4.2.0.32' # use the last opencv version for python 2.7
 
 setup(
-	name = "bCNC",
-	version = "0.9.14.318",
+	name = "eswin-bcnc",
+	version = "0.9.14.320",
 	license="GPLv2",
 	description='Swiss army knife for all your CNC/g-code needs',
 	long_description=long_description,
